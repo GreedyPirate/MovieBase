@@ -1,98 +1,152 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import MovieCard from '@/components/MovieCard';
+import SearchBar from '@/components/SearchBar';
+import { images } from '@/constants/images';
+import { getTopMovies } from '@/hooks/useMovie';
+import { MovieList } from '@/interfaces/interfaces';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, RefreshControl, Text, View } from 'react-native';
+export default function Index() {
+    const [movieList, setMovieList] = useState<MovieList>([]);
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [hasError, setHasError] = useState(false);
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+    // 下拉刷新
+    const [refreshing, setRefreshing] = useState(false);
+    const pullRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await loadMovieList(1, false);
+            setPage(1);
+        } catch (error) {
+            console.error('刷新失败:', error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    // 上拉加载更多
+    const [loadingMore, setLoadingMore] = useState(false);
+    const loadMore = async () => {
+        if (loadingMore) return;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+        setLoadingMore(true);
+        const nextPage = page + 1;
+
+        // set函数只根据输入计算输出，不修改外部状态、不发起网络请求、不调用 API
+        // setPage((prev) => {
+        //     loadMovieList(prev, false); 
+        //     return prev + 1;
+        // })
+
+        try {
+            await loadMovieList(nextPage, false);
+            setPage(nextPage); // 更新页码
+        } catch (error) {
+            console.error('加载更多失败:', error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+    // 根据page获取列表，刷新FlatList
+    const loadMovieList = async (page: number = 1, loading: boolean) => {
+        try {
+            setLoading(loading);
+            setHasError(false);
+            const movieData = await getTopMovies(page);
+            if (page === 1) {
+                setMovieList(movieData.results);
+            } else {
+                setMovieList(prev => [...prev, ...movieData.results])
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        loadMovieList(1, true);
+    }, []);
+
+    return (
+        <View className='flex-1 bg-primary'>
+            {/* 背景图 */}
+            <Image source={images.bg} className='absolute size-full'></Image>
+            {
+                loading && (
+                    <View className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {/*
+                                为什么要单独写在一个view里而不在ScrollView里？
+                                ScrollView的本质是一个高度不固定的容器，因为滚动的特性，可以容纳无限高度的子元素
+                                ActivityIndicator无法撑满ScrollView的剩余空间(除非显式设置contentContainerStyle)，也就不好垂直居中
+                                absolute inset-0：脱离文档流，inset-0让view上下左右距离父元素0px，也就是撑满父元素，等效于宽高100%
+                            */}
+                        <ActivityIndicator size="large" color="#FFFFFF" />
+                    </View>
+                )
+            }
+            {
+                hasError && (
+                    <View className="flex-1 items-center justify-center p-5">
+                        <Text className="text-white text-center">
+                            加载失败，请检查网络后重试...
+                        </Text>
+                    </View>
+                )
+            }
+            <View className='flex-1 px-5'>
+                <SearchBar/>
+                <FlatList
+                    ListHeaderComponent={()=>(
+                        <>
+                            <View className="mb-4 px-2">
+                                <Text className="text-white">最新电影</Text>
+                            </View>
+                        </>
+                    )}
+                    numColumns={3}
+                    // 保证RefreshControl显示loading start
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        minHeight: '100%' // 确保内容容器有最小高度
+                    }}
+                    // 保证RefreshControl显示loading end
+                    columnWrapperStyle={{
+                        flex: 1,
+                        justifyContent: 'flex-start',
+                        gap: 12,
+                        // paddingHorizontal: 16,
+                        marginBottom: 15,
+                    }}
+                    data={movieList}
+                    onEndReached={loadMore}
+                    onEndReachedThreshold={0.5}
+                    keyExtractor={(item) => item.id.toString()}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={pullRefresh}
+                            title="刷新中 ..."
+
+                            // iOS 专用属性
+                            tintColor="#FFFFFF"        // iOS 旋转指示器颜色
+                            titleColor="#FFFFFF"       // iOS 标题颜色
+
+                            // Android 专用属性  
+                            colors={['#FF0000']}       // Android 进度圆圈颜色
+                            progressBackgroundColor="#FFFFFF" // Android 背景色
+                            progressViewOffset={50}
+                        />
+                    }
+                    renderItem={({ item, index }) => (
+                        <MovieCard {...item} />
+                    )}
+                />
+            </View>
+        </View>
+    );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

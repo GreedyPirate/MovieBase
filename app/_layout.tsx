@@ -1,24 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '../global.css';
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  // 直接隐藏状态栏，电量，wifi，信号
+  {
+    
+  }
+  return <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar style='light' hidden={false}></StatusBar> 
+          <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="pages/search" options={{ headerShown: false }} />
+              <Stack.Screen name="pages/moveDetail" options={{ headerShown: false }} />
+          </Stack>
+  </GestureHandlerRootView>
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
 }
+
+// export default function RootLayout() {
+//   return <Stack>
+//       <Stack.Screen name="(demos)/(router)/page1" options={{headerShown:false}}/>
+//       <Stack.Screen name="(demos)/(router)/page2" options={{title:"自定义标题", 
+//           headerStyle: {
+//             backgroundColor: '#6a5acd', // 背景色
+//           },
+//           headerBackTitle: 'Back',
+//           headerTintColor: '#fff',      // 返回按钮和标题文字颜色
+//           headerTitleStyle: {
+//             fontWeight: 'bold',
+//             fontSize: 20,
+//           },}}/>
+//     </Stack>;
+// }
