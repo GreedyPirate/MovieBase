@@ -1,14 +1,8 @@
+import { MovieCardProps } from '@/interfaces/interfaces';
 import { useRouter } from 'expo-router';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
-interface MovieCardProps {
-    id: number;
-    poster_path: string | null;
-    release_date: string,
-    vote_average: number,
-    title: string,
-}
-export default function MovieCard({ id, poster_path, release_date, vote_average, title }: MovieCardProps) {
+export default function MovieCard({ id, poster_path, release_date, vote_average, title, isVertical }: MovieCardProps) {
     const router = useRouter();
     const forwardDetail = () => {
         router.push({
@@ -17,13 +11,14 @@ export default function MovieCard({ id, poster_path, release_date, vote_average,
         });
     }
     return (
-        <View className="w-[30%] ml-1">
+        // 30%仅限FlatList垂直列表，此时FlatList宽度固定, 水平列表只能设置固定值
+        <View className="ml-1" style={{ width: isVertical ? '30%' : 100 }}>
             <TouchableOpacity onPress={forwardDetail} activeOpacity={0.6} className='relative w-full'>
                 <Image source={{ uri: `https://image.tmdb.org/t/p/w500${poster_path}` }}
                     className="w-full rounded-lg"
                     style={{ aspectRatio: 2 / 3 }}
-                    resizeMode="cover" />
-
+                    resizeMode="cover" 
+                    />
                 {
                     release_date &&
                     (

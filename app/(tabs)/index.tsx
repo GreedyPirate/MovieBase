@@ -76,19 +76,6 @@ export default function Index() {
             {/* 背景图 */}
             <Image source={images.bg} className='absolute size-full'></Image>
             {
-                loading && (
-                    <View className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        {/*
-                                为什么要单独写在一个view里而不在ScrollView里？
-                                ScrollView的本质是一个高度不固定的容器，因为滚动的特性，可以容纳无限高度的子元素
-                                ActivityIndicator无法撑满ScrollView的剩余空间(除非显式设置contentContainerStyle)，也就不好垂直居中
-                                absolute inset-0：脱离文档流，inset-0让view上下左右距离父元素0px，也就是撑满父元素，等效于宽高100%
-                            */}
-                        <ActivityIndicator size="large" color="#FFFFFF" />
-                    </View>
-                )
-            }
-            {
                 hasError && (
                     <View className="flex-1 items-center justify-center p-5">
                         <Text className="text-white text-center">
@@ -98,54 +85,69 @@ export default function Index() {
                 )
             }
             <View className='flex-1 px-5'>
-                <SearchBar/>
-                <FlatList
-                    ListHeaderComponent={()=>(
-                        <>
-                            <View className="mb-4 px-2">
-                                <Text className="text-white">最新电影</Text>
-                            </View>
-                        </>
-                    )}
-                    numColumns={3}
-                    // 保证RefreshControl显示loading start
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        minHeight: '100%' // 确保内容容器有最小高度
-                    }}
-                    // 保证RefreshControl显示loading end
-                    columnWrapperStyle={{
-                        flex: 1,
-                        justifyContent: 'flex-start',
-                        gap: 12,
-                        // paddingHorizontal: 16,
-                        marginBottom: 15,
-                    }}
-                    data={movieList}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.5}
-                    keyExtractor={(item) => item.id.toString()}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={pullRefresh}
-                            title="刷新中 ..."
+                <SearchBar />
+                {
+                    loading ? (
+                        <View className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            {/*
+                                为什么要单独写在一个view里而不在ScrollView里？
+                                ScrollView的本质是一个高度不固定的容器，因为滚动的特性，可以容纳无限高度的子元素
+                                ActivityIndicator无法撑满ScrollView的剩余空间(除非显式设置contentContainerStyle)，也就不好垂直居中
+                                absolute inset-0：脱离文档流，inset-0让view上下左右距离父元素0px，也就是撑满父元素，等效于宽高100%
+                            */}
+                            <ActivityIndicator size="large" color="#FFFFFF" />
+                        </View>
+                    ) :
+                    (
+                        <FlatList
+                            ListHeaderComponent={() => (
+                                <>
+                                    <View className="mb-4 px-2">
+                                        <Text className="text-white">最新电影</Text>
+                                    </View>
+                                </>
+                            )}
+                            numColumns={3}
+                            // 保证RefreshControl显示loading start
+                            style={{ flex: 1 }}
+                            contentContainerStyle={{
+                                flexGrow: 1,
+                                minHeight: '100%' // 确保内容容器有最小高度
+                            }}
+                            // 保证RefreshControl显示loading end
+                            columnWrapperStyle={{
+                                flex: 1,
+                                justifyContent: 'flex-start',
+                                gap: 12,
+                                // paddingHorizontal: 16,
+                                marginBottom: 15,
+                            }}
+                            data={movieList}
+                            onEndReached={loadMore}
+                            onEndReachedThreshold={0.5}
+                            keyExtractor={(item) => item.id.toString()}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={refreshing}
+                                    onRefresh={pullRefresh}
+                                    title="刷新中 ..."
 
-                            // iOS 专用属性
-                            tintColor="#FFFFFF"        // iOS 旋转指示器颜色
-                            titleColor="#FFFFFF"       // iOS 标题颜色
+                                    // iOS 专用属性
+                                    tintColor="#FFFFFF"        // iOS 旋转指示器颜色
+                                    titleColor="#FFFFFF"       // iOS 标题颜色
 
-                            // Android 专用属性  
-                            colors={['#FF0000']}       // Android 进度圆圈颜色
-                            progressBackgroundColor="#FFFFFF" // Android 背景色
-                            progressViewOffset={50}
+                                    // Android 专用属性  
+                                    colors={['#FF0000']}       // Android 进度圆圈颜色
+                                    progressBackgroundColor="#FFFFFF" // Android 背景色
+                                    progressViewOffset={50}
+                                />
+                            }
+                            renderItem={({ item, index }) => (
+                                <MovieCard {...{ ...item, isVertical: true }} />
+                            )}
                         />
-                    }
-                    renderItem={({ item, index }) => (
-                        <MovieCard {...item} />
-                    )}
-                />
+                    )
+                }
             </View>
         </View>
     );

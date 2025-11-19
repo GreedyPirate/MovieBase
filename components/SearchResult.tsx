@@ -1,6 +1,7 @@
 import { images } from '@/constants/images';
 import { MovieList } from '@/interfaces/interfaces';
 import { movieGenresStore } from '@/stores/movieGenresStore';
+import { useRouter } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 
@@ -28,6 +29,14 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
             <Text className="text-slate-300 text-xs">{movieGenresStore.getGenreName(id)}</Text>
         )) 
     }
+    const router = useRouter();
+    const handlePress = (id: number) => {
+        // 跳转到详情页面
+        router.push({
+            pathname: '/pages/moveDetail',
+            params: { id: id },
+        });
+    }
     return (
         <View className='px-5'>
             <FlatList
@@ -37,7 +46,7 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
                 }}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity activeOpacity={0.5}>
+                    <TouchableOpacity onPress={() => handlePress(item.id)} activeOpacity={0.5}>
                         <View className="h-[80] flex-row items-center jsustify-flex-start py-2 border-b-[1px] border-dark-200">
                             <Image source={item.poster_path ? {uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`} : images.blankMoviePic}
                                 className="w-[40] h-[50] rounded-lg"

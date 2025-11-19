@@ -59,3 +59,13 @@ export const fetchMovieReviews = async (id: number, page: number=1): Promise<Mov
   const response = await tmdbRequest.get(`/movie/${id}/reviews`, { params });
   return response;
 };  
+
+
+export const fetchSimilarMovies = async (id: number, page: number=1): Promise<PagedMovieList> => {
+  const params = {
+    language: 'en-US',
+    page: page
+  };
+  const response = await tmdbRequest.get(`/movie/${id}/similar`, { params });
+  return response;
+};
