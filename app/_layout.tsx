@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
+
 export default function RootLayout() {
   // 直接隐藏状态栏，电量，wifi，信号
   {
@@ -13,9 +14,10 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="pages/search" options={{ headerShown: false }} />
               <Stack.Screen name="pages/moveDetail" options={{ headerShown: false }} />
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen name="signUp" options={{ headerShown: false }} />
           </Stack>
   </GestureHandlerRootView>
-
 }
 
 // export default function RootLayout() {
