@@ -1,5 +1,6 @@
 import { MovieDetail, MovieGenresResponse, MovieReviewsResponse, PagedMovieList } from '@/interfaces/interfaces';
-import { tmdbRequest } from "../utils/request";
+import { tmdbRequest } from "@/utils/request";
+import { superbase } from '@/utils/superbaseClient';
 
 const commonSearchParams = {
   include_adult: false,
@@ -51,11 +52,47 @@ export const fetchMovieDetail = async (id: number): Promise<MovieDetail> => {
   return response;
 };
 
-export const fetchMovieReviews = async (id: number, page: number=1): Promise<MovieReviewsResponse> => {
+export const fetchMovieReviews = async (id: number, page: number = 1): Promise<MovieReviewsResponse> => {
   const params = {
     language: 'en-US',
     page: page
   };
   const response = await tmdbRequest.get(`/movie/${id}/reviews`, { params });
   return response;
-};  
+};
+
+
+export const fetchSimilarMovies = async (id: number, page: number = 1): Promise<PagedMovieList> => {
+  const params = {
+    language: 'en-US',
+    page: page
+  };
+  const response = await tmdbRequest.get(`/movie/${id}/similar`, { params });
+  return response;
+};
+
+export const recordMovieView = async (id: number) => {
+  //  const response = await supabase.from('movie_view')
+  //  .upsert({ movie_id: id, bg_img_url: bgImgUrl, count: 1 })
+
+  const response = await superbase.rpc('record_movie_view', {
+    p_movie_id: id,
+  })
+  console.log('recordMovieView response:', response);
+  return response;
+};
+
+export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
+  const {data, error} = await superbase.from('movie_view')
+    .select('movie_id')
+    .order('count', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(total)
+    .overrideTypes<{ movie_id: number }[]>()
+  if (error) {
+    console.error('获取热门电影失败:', error)
+    throw error
+  }
+  console.log('获取热门电影成功:', data)
+  return data?.map(row => row.movie_id) ?? []
+};

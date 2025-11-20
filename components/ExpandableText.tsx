@@ -9,7 +9,6 @@ export default function ExpandableText({text, maxLines = 3}: ExpandableTextProps
     const [contentLines, setContentLines] = useState(3);
     const [isExpanded, setIsExpanded] = useState(false);
     const handleLayout = (e:TextLayoutEvent) => {
-        console.log('lines', e.nativeEvent.lines.length);
         setContentLines(e.nativeEvent.lines.length);
     };
     return (

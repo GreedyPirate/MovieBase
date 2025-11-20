@@ -122,3 +122,12 @@ export interface MovieReviewsResponse {
     total_pages: number;
     total_results: number;
 }
+
+export interface MovieCardProps {
+    id: number;
+    poster_path: string | null;
+    release_date: string,
+    vote_average: number,
+    title: string,
+    isVertical: boolean
+}

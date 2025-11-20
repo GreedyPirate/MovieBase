@@ -64,7 +64,7 @@ const createHttpClient = (config: AxiosRequestConfig): AxiosInstance => {
       return response;
     },
     (error) => {
-      console.error(`[${config.baseURL}] Request failed:`, error.message);
+      console.error(`[${error.config?.url ?? ''}] Request failed:`, error.message);
       return Promise.reject(error);
     }
   );

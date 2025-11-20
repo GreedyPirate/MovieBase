@@ -2,7 +2,7 @@ import { images } from '@/constants/images';
 import { fetchMovieReviews } from '@/hooks/useMovie';
 import { MovieDetail, MovieReviews } from '@/interfaces/interfaces';
 import { useEffect, useState } from 'react';
-import { Image, Text, TextLayoutEvent, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import CommentFooter from './CommentFooter';
 import ExpandableText from './ExpandableText';
@@ -16,7 +16,6 @@ interface ReviewProps {
 export default function Review({movieId, detail}:ReviewProps) {
     const [page, setPage] = useState(1);
     const [reviews, setReviews] = useState<MovieReviews>([]);
-    const [contentLines, setContentLines] = useState(3);
     useEffect(() => { 
         const loadReviews = async () => {
             const reviews = await fetchMovieReviews(movieId , page) 
@@ -24,10 +23,6 @@ export default function Review({movieId, detail}:ReviewProps) {
         }
         loadReviews()
     }, [])
-    const handleLayout = (e:TextLayoutEvent) => {
-        console.log('lines', e.nativeEvent.lines.length);
-        setContentLines(e.nativeEvent.lines.length);
-    };
     return (
         <View className='flex-1'>
             <FlatList
