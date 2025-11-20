@@ -1,16 +1,25 @@
 import MovieCard from '@/components/MovieCard';
 import SearchBar from '@/components/SearchBar';
 import { images } from '@/constants/images';
-import { getTopMovies } from '@/hooks/useMovie';
-import { MovieList } from '@/interfaces/interfaces';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, RefreshControl, Text, View } from 'react-native';
+import { fetchMovieDetail, getTopMovies, getTrendingMovie, recordMovieView } from '@/hooks/useMovie';
+import { MovieDetail, MovieList } from '@/interfaces/interfaces';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Dimensions, Image, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
+import { useSharedValue } from 'react-native-reanimated';
+import Carousel, {
+    ICarouselInstance,
+    Pagination
+} from "react-native-reanimated-carousel";
 export default function Index() {
     const [movieList, setMovieList] = useState<MovieList>([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [hasError, setHasError] = useState(false);
+    const movieListRef = useRef<FlatList>(null);
+    const router = useRouter();
 
     // 下拉刷新
     const [refreshing, setRefreshing] = useState(false);
@@ -67,10 +76,44 @@ export default function Index() {
         }
     }
 
+    const [trendMovies, setTrendMovies] = useState<MovieDetail[]>([]);
     useEffect(() => {
         loadMovieList(1, true);
+        const fetchTrendingMovies = async () => {
+            try {
+            const trendMovieIds = await getTrendingMovie();
+            if (!trendMovieIds || trendMovieIds.length === 0) {
+                setTrendMovies([]);
+                return;
+            }
+            const moviePromises = trendMovieIds.map(id => fetchMovieDetail(id));
+            const movies = await Promise.all(moviePromises);
+
+            const validMovies = movies.filter(movie => movie !== null && movie !== undefined);
+
+            setTrendMovies(validMovies);
+            } catch (error) {
+                console.error('Failed to fetch trending movies:', error);
+                setTrendMovies([]);
+            }
+        };
+
+        fetchTrendingMovies();
+        console.log('trendMovies', trendMovies.length)
     }, []);
 
+    const refCarousel = useRef<ICarouselInstance>(null);
+    const progress = useSharedValue<number>(0);
+    const screenWidth = Dimensions.get('window').width;
+
+    const forwardDetail = (id: number) => {
+        // 跳转到电影详情页
+        router.push({
+            pathname: '/pages/moveDetail',
+            params: { id: id },
+        });
+        recordMovieView(id)
+    }
     return (
         <View className='flex-1 bg-primary'>
             {/* 背景图 */}
@@ -100,8 +143,53 @@ export default function Index() {
                     ) :
                     (
                         <FlatList
+                            ref={movieListRef}
                             ListHeaderComponent={() => (
                                 <>
+                                    {
+                                        trendMovies.length > 0 && (
+                                            <View className='mb-5 h-200'>
+                                                 <Carousel
+                                                    ref={refCarousel}
+                                                    width={screenWidth}
+                                                    height={200}
+                                                    data={trendMovies}
+                                                    onProgressChange={progress}
+                                                    pagingEnabled={true}
+                                                    autoPlay={true}
+                                                    autoPlayInterval={5000}
+                                                    // withAnimation={{
+                                                    //     type: "spring",
+                                                    //     config: {
+                                                    //         damping: 20,
+                                                    //         mass: 0.5,
+                                                    //     }
+                                                    // }}
+                                                    renderItem={({ item, index }) => (
+                                                        <TouchableOpacity
+                                                            onPress={()=>forwardDetail(item.id)} 
+                                                            className="flex-1 items-start justify-center aspect-16/9 rounded-lg overflow-hidden">
+                                                            <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}` }}
+                                                                className='size-full'
+                                                                resizeMode="cover"
+                                                            />
+                                                        </TouchableOpacity>
+                                                    )}
+                                                />
+                                                <Pagination.Basic
+                                                    progress={progress}
+                                                    data={trendMovies}
+                                                    activeDotStyle={{ backgroundColor: "#FFE400", borderRadius: 50 }}
+                                                    dotStyle={{ backgroundColor: "#FFF", borderRadius: 50 }}
+                                                    containerStyle={{
+                                                        position: 'absolute',
+                                                        bottom: 10,
+                                                        gap: 5
+                                                    }}
+                                                /> 
+                                            </View>
+                                        )
+                                    }
                                     <View className="mb-4 px-2">
                                         <Text className="text-white">最新电影</Text>
                                     </View>
@@ -111,6 +199,7 @@ export default function Index() {
                             // 保证RefreshControl显示loading start
                             style={{ flex: 1 }}
                             contentContainerStyle={{
+                                marginTop: 20,
                                 flexGrow: 1,
                                 minHeight: '100%' // 确保内容容器有最小高度
                             }}

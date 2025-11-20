@@ -7,7 +7,7 @@ export default function Search() {
         <View>
             <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
             {/* KeyboardAvoidingView:  behavior="position" keyboardVerticalOffset={30} */}
-            <View className='flex-row items-center bg-dark-200 rounded-2xl px-4 py-4 mb-5'> 
+            <View className='flex-row items-center bg-dark-200 rounded-2xl px-4 py-4'> 
                 <Image source={icons.search} className='w-5 h-5' resizeMode='contain' tintColor="#AB8BFF"></Image>
                 <TextInput className='flex-1 ml-2 mb-2 text-white text-base' 
                 onPressOut={() => {

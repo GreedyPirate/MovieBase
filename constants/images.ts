@@ -11,3 +11,9 @@ export const images = {
   blankMoviePic,
   unknownUser
 };
+
+export const expoImages = {
+  bg: require('@/assets/images/bg.png'),
+  blankMoviePic: require('@/assets/images/blank-movie.png'),
+  unknownUser: require('@/assets/images/unknown-user.jpg')
+}

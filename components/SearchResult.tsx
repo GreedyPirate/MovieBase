@@ -1,9 +1,11 @@
-import { images } from '@/constants/images';
+import { expoImages } from '@/constants/images';
+import { recordMovieView } from '@/hooks/useMovie';
 import { MovieList } from '@/interfaces/interfaces';
 import { movieGenresStore } from '@/stores/movieGenresStore';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { observer } from 'mobx-react-lite';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 interface ResultListProps {
     data: MovieList,
@@ -36,6 +38,7 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
             pathname: '/pages/moveDetail',
             params: { id: id },
         });
+        recordMovieView(id)
     }
     return (
         <View className='px-5'>
@@ -48,9 +51,11 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handlePress(item.id)} activeOpacity={0.5}>
                         <View className="h-[80] flex-row items-center jsustify-flex-start py-2 border-b-[1px] border-dark-200">
-                            <Image source={item.poster_path ? {uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`} : images.blankMoviePic}
-                                className="w-[40] h-[50] rounded-lg"
-                                resizeMode="cover" />
+                            <View className='w-[40] h-[50] rounded-lg'>
+                                <Image source={item.poster_path ? {uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`} : expoImages.blankMoviePic}
+                                    contentFit="cover" />
+                            </View>
+                            
                             <View className='flex-column gap-2 justify-between ml-3'>
                                 <View className='flex-row'>
                                     {renderHighlightedText(item.title, query)}

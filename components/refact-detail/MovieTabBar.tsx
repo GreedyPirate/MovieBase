@@ -1,8 +1,9 @@
 // MovieTabBar.tsx
+import DetailHeader from '@/components/DetailHeader';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { NavigationState, Route, SceneRendererProps, TabDescriptor } from 'react-native-tab-view';
+import { NavigationState, Route, SceneRendererProps, TabBar, TabDescriptor } from 'react-native-tab-view';
 
 interface MovieTabBarProps {
   props: SceneRendererProps & {
@@ -46,19 +47,25 @@ export default function MovieTabBar({ props, bgImgUrl }: MovieTabBarProps) {
       <GestureDetector gesture={dragZoomOut}>
         <Animated.Image
           source={{ uri: `https://image.tmdb.org/t/p/w500${bgImgUrl}` }}
-          style={[imageScaleStyle]}
+          style={[imageScaleStyle, { aspectRatio: 16 / 9 }]}
           resizeMode='cover' />
       </GestureDetector>
-
-
+      <DetailHeader></DetailHeader>
+      
       <View className="flex-row px-4">
-        {routes.map((route) => (
-          <View key={route.key} className="px-3 py-2">
-            <TouchableOpacity activeOpacity={0.8} onPress={() => props.jumpTo(route.key)}>
-              <Text className="text-white text-lg font-semibold">{route.title}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+          <TabBar {...props}
+                indicatorStyle={{ backgroundColor: '#FFF' }}
+                style={{ backgroundColor: 'transparent' }}
+                renderTabBarItem={(prop) => {
+                  return (
+                    <View key={prop.route.key} className="px-3 py-2">
+                      <TouchableOpacity activeOpacity={0.8} onPress={() => props.jumpTo(prop.route.key)}>
+                        <Text className="text-white text-lg font-semibold"> 
+                          {prop.route.title}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )
+                }}/>
       </View>
     </View>
   );

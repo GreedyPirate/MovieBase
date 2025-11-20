@@ -124,7 +124,7 @@ export interface MovieReviewsResponse {
 }
 
 export interface MovieCardProps {
-    id: number | string;
+    id: number;
     poster_path: string | null;
     release_date: string,
     vote_average: number,

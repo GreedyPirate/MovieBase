@@ -16,6 +16,7 @@ export default function MovieDetailPage() {
     useEffect(() => {
         const movieDtail = async () => {
             const deatil = await fetchMovieDetail(Number(id))
+            console.log(deatil.backdrop_path)
             setDetail(deatil)
         }
         movieDtail()
@@ -50,6 +51,8 @@ export default function MovieDetailPage() {
                 // renderLazyPlaceholder={lazyPlaceholder}
                 renderScene={sceneMap}
                 navigationState={tabNavState}
+                // 输入时滑动收起键盘
+                keyboardDismissMode='on-drag'
                 onIndexChange={handleIndexChange}
                 renderTabBar={props => <MovieTabBar props={props} bgImgUrl={detail?.backdrop_path ?? ''} />}
             />
