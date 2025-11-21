@@ -1,3 +1,4 @@
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -6,18 +7,22 @@ import '../global.css';
 export default function RootLayout() {
   // 直接隐藏状态栏，电量，wifi，信号
   {
-    
+
   }
-  return <GestureHandlerRootView style={{ flex: 1 }}>
-          <StatusBar style='light' hidden={false}></StatusBar> 
-          <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="pages/search" options={{ headerShown: false }} />
-              <Stack.Screen name="pages/moveDetail" options={{ headerShown: false }} />
-              <Stack.Screen name="login" options={{ headerShown: false }} />
-              <Stack.Screen name="signUp" options={{ headerShown: false }} />
-          </Stack>
-  </GestureHandlerRootView>
+  // ActionSheetProvider只能有一个子元素
+  return <ActionSheetProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar style='light' hidden={false}></StatusBar>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="pages/search" options={{ headerShown: false }} />
+          <Stack.Screen name="pages/moveDetail" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="signUp" options={{ headerShown: false }} />
+          <Stack.Screen name="pages/camera" options={{ headerShown: false }} />
+        </Stack>
+    </GestureHandlerRootView>
+  </ActionSheetProvider>
 }
 
 // export default function RootLayout() {
