@@ -1,17 +1,23 @@
 import { images } from '@/constants/images';
+import { uploadImage } from '@/hooks/useImageBed';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Bell,
+    Camera,
     ChevronRight,
+    CircleX,
     CreditCard,
     Edit2,
     HelpCircle,
+    ImageIcon,
     LogOut,
     Package,
     Shield
 } from 'lucide-react-native';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, Text, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface InfoCardProps {
@@ -46,19 +52,6 @@ interface ItemButtonProps {
     isLast?: boolean
 }
 
-const styles = StyleSheet.create({
-    item: {
-        backgroundColor: '#1a1828',
-    },
-    itemPressed: {
-        backgroundColor: '#E5E5E5',
-    },
-    lastItem: {
-        borderStyle: 'solid',
-        borderBottomWidth: 1,
-        borderColor: '#FFF',
-    }
-});
 function ItemButton({ title, icon, isLast }: ItemButtonProps) {
     const [isPressed, setIsPressed] = useState(false);
     const pressedStyle = () => {
@@ -101,7 +94,7 @@ export default function Profile() {
     const [isPressed, setIsPressed] = useState(false)
     const insets = useSafeAreaInsets()
 
-    const iconSize = 20
+    let iconSize = 20
     const iconColor = '#d1d5dc'
     const funcItemList = [
         {
@@ -130,15 +123,86 @@ export default function Profile() {
 
         }
     ]
-    const handleEdit = () => {
+
+    const { showActionSheetWithOptions } = useActionSheet();
+    iconSize = 25
+    const icons = {
+        photo: <ImageIcon color={iconColor} size={iconSize} />,
+        camera: <Camera color={iconColor} size={iconSize} />,
+        cancel: <CircleX color={iconColor} size={iconSize} />
     }
+
+
+
+    const [pickedimage, setPickedImage] = useState<string | null>(null);
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permissionResult.granted) {
+            Alert.alert('Permission required', 'Permission to access the media library is required.');
+            return;
+        }
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'], // 'videos'
+            // shape: 'oval',
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.7,
+            exif: false
+        });
+
+        console.log(result);
+
+        if (!result.canceled) {
+            const uploadResp = await uploadImage(result);
+            console.log('uploadResp', uploadResp);
+            setPickedImage(uploadResp.links.url);
+        }
+    };
+
+    const tackPhoto = async () => {
+
+    };
+
+    const handleEditAvatar = () => {
+        showActionSheetWithOptions(
+            {
+                options: ['Photo', 'Camera', 'Cancel'],
+                cancelButtonIndex: 2,
+                cancelButtonTintColor: 'rgba(211, 49, 49, 0.8)',
+                icons: [icons.camera, icons.photo, icons.cancel],
+            },
+            (buttonIndex?: number) => {
+                if (buttonIndex === 0) {
+                    pickImage()
+                } else if (buttonIndex === 1) {
+                    tackPhoto()
+                }
+            },
+        );
+    };
+
+    const handleEditProfile = () => {
+    }
+
+
     return (
         <View className="flex-1 px-8 bg-dark-200" style={{ paddingTop: insets.top, paddingBottom: insets.bottom + 60 }}>
             <Text className="text-white text-3xl">我的</Text>
             <ScrollView showsVerticalScrollIndicator={false} >
 
                 <View className='bg-dark-120 mt-8 p-6 rounded-2xl items-center justify-center'>
-                    <Image source={images.defaultAvatar} className='size-20 rounded-full' />
+                    <View className='relative'>
+                        <Image source={images.defaultAvatar} className='size-20 rounded-full' />
+                        <Pressable
+                            onPress={handleEditAvatar}
+                        >
+                            <Camera size={25} color="#d1d5dc" style={{
+                                position: 'absolute', right: -5, bottom: -5,
+                            }} />
+                        </Pressable>
+                    </View>
                     <View className='mt-5 items-center'>
                         <Text className="text-white text-xl">Jaynnay</Text>
                         <Text className="text-gray-400 text-base">jay@outlook.com</Text>
@@ -148,7 +212,7 @@ export default function Profile() {
                         <InfoCard title="Spent" value="$2.4k" />
                         <InfoCard title="Tier" value="Gold" isLast />
                     </View>
-                    <Pressable className='mt-5 w-full' onPress={handleEdit} onPressIn={() => setIsPressed(true)}
+                    <Pressable className='mt-5 w-full' onPress={handleEditProfile} onPressIn={() => setIsPressed(true)}
                         onPressOut={() => setIsPressed(false)}>
                         <LinearGradient
                             start={{ x: 0, y: 0 }}
