@@ -56,7 +56,7 @@ export default function MovieDetailPage() {
                 // 输入时滑动收起键盘
                 keyboardDismissMode='on-drag'
                 onIndexChange={handleIndexChange}
-                renderTabBar={props => <MovieTabBar props={props} bgImgUrl={detail?.backdrop_path ?? ''} />}
+                renderTabBar={props => <MovieTabBar movieId={Number(id)} props={props} bgImgUrl={detail?.backdrop_path ?? ''} />}
             />
         </View>
     );

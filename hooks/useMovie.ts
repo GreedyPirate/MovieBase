@@ -95,3 +95,9 @@ export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
   }
   return data?.map(row => row.movie_id) ?? []
 };
+
+export const fetchVideoUri = async (id: number): Promise<string | null> => {
+  const response = await tmdbRequest.get(`/movie/${id}/videos`);
+  const video = response.results.find((video: any) => video.type === 'Trailer');
+  return video ? video.key : null;
+};

@@ -1,8 +1,11 @@
 import { fetchSimilarMovies } from '@/hooks/useMovie';
+import { formatMinutes } from '@/hooks/utils';
 import { MovieDetail, MovieList, ProductCompany } from '@/interfaces/interfaces';
 import { movieGenresStore } from '@/stores/movieGenresStore';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Calendar, Clock8 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import ExpandableText from '../ExpandableText';
 import MovieCard from '../MovieCard';
@@ -51,7 +54,7 @@ export default function MovieSummary({ detail, onScrollTop}: MovieSummaryProps) 
         }
     };
 
-
+    const [liked, setLiked] = useState(false);
     return (
         <View className='flex-1'>
             {
@@ -62,20 +65,42 @@ export default function MovieSummary({ detail, onScrollTop}: MovieSummaryProps) 
                     </View>
                 ) :
                 (
-                    <View className='px-5 mt-5 gap-y-2'>
-                        <ScrollView onScroll={triggerScrollToTop}>
-                            <Text className='text-white text-xl font-bold'>{detail?.title}</Text>
-                            <View className='flex-row gap-x-2'>
-                                <Text className='text-light-200 text-sm'>{detail?.release_date?.split('-')[0]}</Text>
-                                <Text className='text-light-200 text-sm'>{detail?.runtime}m</Text>
-                                {
-                                    detail?.genres?.map((genre, index) => (
-                                        <Text className='text-light-200 text-sm' key={genre.id}>{movieGenresStore.getGenreName(genre.id) + (index===detail?.genres?.length-1 ? '' : ' /')}</Text>
-                                    ))
-                                }
+                    <View className='px-5 mt-5'>
+                        <ScrollView className='relative gap-y-2' onScroll={triggerScrollToTop}>
+                            <View className='absolute right-3 top-3'>
+                                <Pressable className='p-5' onPress={() => setLiked(!liked)}>
+                                    {
+                                        liked ? (
+                                            <FontAwesome name="heart" size={25} color="#FF3030" />
+                                        ) : (
+                                            <FontAwesome name="heart-o" size={25} color="#FFF" />
+                                        )
+                                    }
+                                </Pressable>
                             </View>
-
-
+                            
+                            <Text className='text-white text-2xl font-bold'>{detail?.title}</Text>
+                            <View className='flex-row items-center gap-x-3'>
+                                <View className='flex-row items-center gap-x-1'>
+                                    <Calendar color='#a8b5db' size={15} />
+                                    <Text className='text-light-200 text-sm'>{detail?.release_date?.split('-')[0]}</Text>
+                                </View>
+                                {
+                                    detail?.runtime && (
+                                        <View className='flex-row items-center gap-x-1'>
+                                            <Clock8 color='#a8b5db' size={15} />
+                                            <Text className='text-light-200 text-sm'>{formatMinutes(detail?.runtime)}</Text>
+                                        </View>
+                                    )
+                                }
+                                <View className='flex-row items-center gap-x-1'>
+                                    {
+                                        detail?.genres?.map((genre, index) => (
+                                            <Text className='text-light-200 text-sm' key={genre.id}>{movieGenresStore.getGenreName(genre.id) + (index===detail?.genres?.length-1 ? '' : ' /')}</Text>
+                                        ))
+                                    }
+                                </View>
+                            </View>
                             {/* react native flex默认是垂直布局，alignItems默认是stretch会让子元素默认按水平方向获得 100%宽度，
                                     注：flex:1也是获得100%宽度，按交叉轴获取剩余长度
                                     如果修改了父元素alignItems就不能左对齐布局，因此让子元素宽度由内容撑开，单独设置self-start */}
