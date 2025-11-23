@@ -29,8 +29,10 @@ export default function MovieDetailPage() {
             { key: 'review', title: '评论' }
         ]
     })
+    const onScrollTop = () => { 
+    }
     const sceneMap = SceneMap({
-        detail: () => <MovieSummary detail={detail}/>,
+        detail: () => <MovieSummary detail={detail} onScrollTop={onScrollTop}/>,
         review: () => <MovieReview movieId={Number(id)} />
     });
     const handleIndexChange = (index: number) => {

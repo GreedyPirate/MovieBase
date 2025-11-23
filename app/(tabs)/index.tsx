@@ -81,17 +81,17 @@ export default function Index() {
         loadMovieList(1, true);
         const fetchTrendingMovies = async () => {
             try {
-            const trendMovieIds = await getTrendingMovie();
-            if (!trendMovieIds || trendMovieIds.length === 0) {
-                setTrendMovies([]);
-                return;
-            }
-            const moviePromises = trendMovieIds.map(id => fetchMovieDetail(id));
-            const movies = await Promise.all(moviePromises);
+                const trendMovieIds = await getTrendingMovie();
+                if (!trendMovieIds || trendMovieIds.length === 0) {
+                    setTrendMovies([]);
+                    return;
+                }
+                const moviePromises = trendMovieIds.map(id => fetchMovieDetail(id));
+                const movies = await Promise.all(moviePromises);
 
-            const validMovies = movies.filter(movie => movie !== null && movie !== undefined);
+                const validMovies = movies.filter(movie => movie !== null && movie !== undefined);
 
-            setTrendMovies(validMovies);
+                setTrendMovies(validMovies);
             } catch (error) {
                 console.error('Failed to fetch trending movies:', error);
                 setTrendMovies([]);
@@ -99,7 +99,6 @@ export default function Index() {
         };
 
         fetchTrendingMovies();
-        console.log('trendMovies', trendMovies.length)
     }, []);
 
     const refCarousel = useRef<ICarouselInstance>(null);
@@ -114,6 +113,7 @@ export default function Index() {
         });
         recordMovieView(id)
     }
+
     return (
         <View className='flex-1 bg-primary'>
             {/* 背景图 */}
@@ -141,101 +141,103 @@ export default function Index() {
                             <ActivityIndicator size="large" color="#FFFFFF" />
                         </View>
                     ) :
-                    (
-                        <FlatList
-                            ref={movieListRef}
-                            ListHeaderComponent={() => (
-                                <>
-                                    {
-                                        trendMovies.length > 0 && (
-                                            <View className='mb-5 h-200'>
-                                                 <Carousel
-                                                    ref={refCarousel}
-                                                    width={screenWidth}
-                                                    height={200}
-                                                    data={trendMovies}
-                                                    onProgressChange={progress}
-                                                    pagingEnabled={true}
-                                                    autoPlay={true}
-                                                    autoPlayInterval={5000}
-                                                    // withAnimation={{
-                                                    //     type: "spring",
-                                                    //     config: {
-                                                    //         damping: 20,
-                                                    //         mass: 0.5,
-                                                    //     }
-                                                    // }}
-                                                    renderItem={({ item, index }) => (
-                                                        <TouchableOpacity
-                                                            onPress={()=>forwardDetail(item.id)} 
-                                                            className="flex-1 items-start justify-center aspect-16/9 rounded-lg overflow-hidden">
-                                                            <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}` }}
-                                                                className='size-full'
-                                                                resizeMode="cover"
-                                                            />
-                                                        </TouchableOpacity>
-                                                    )}
-                                                />
-                                                <Pagination.Basic
-                                                    progress={progress}
-                                                    data={trendMovies}
-                                                    activeDotStyle={{ backgroundColor: "#FFE400", borderRadius: 50 }}
-                                                    dotStyle={{ backgroundColor: "#FFF", borderRadius: 50 }}
-                                                    containerStyle={{
-                                                        position: 'absolute',
-                                                        bottom: 10,
-                                                        gap: 5
-                                                    }}
-                                                /> 
-                                            </View>
-                                        )
-                                    }
-                                    <View className="mb-4 px-2">
-                                        <Text className="text-white">最新电影</Text>
+                        (
+                            <FlatList
+                                ref={movieListRef}
+                                ListHeaderComponent={() => (
+                                    <View>
+                                        <View className='mb-5 flex-1 bg-primary min-h-200'>
+                                            {
+                                                trendMovies.length > 0 && (
+                                                    <View>
+                                                        <Carousel
+                                                            ref={refCarousel}
+                                                            width={screenWidth}
+                                                            height={200}
+                                                            data={trendMovies}
+                                                            onProgressChange={progress}
+                                                            pagingEnabled={true}
+                                                            autoPlay={true}
+                                                            autoPlayInterval={5000}
+                                                            // withAnimation={{
+                                                            //     type: "spring",
+                                                            //     config: {
+                                                            //         damping: 20,
+                                                            //         mass: 0.5,
+                                                            //     }
+                                                            // }}
+                                                            renderItem={({ item, index }) => (
+                                                                <TouchableOpacity
+                                                                    onPress={() => forwardDetail(item.id)}
+                                                                    className="flex-1 items-start justify-center aspect-16/9 rounded-lg overflow-hidden">
+                                                                    <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}` }}
+                                                                        className='size-full'
+                                                                        resizeMode="cover"
+                                                                    />
+                                                                </TouchableOpacity>
+                                                            )}
+                                                        />
+                                                        <Pagination.Basic
+                                                            progress={progress}
+                                                            data={trendMovies}
+                                                            activeDotStyle={{ backgroundColor: "#FFE400", borderRadius: 50 }}
+                                                            dotStyle={{ width:6, height:6, backgroundColor: "#FFF", borderRadius: 50 }}
+                                                            containerStyle={{
+                                                                position: 'absolute',
+                                                                bottom: 10,
+                                                                gap: 5
+                                                            }}
+                                                        />
+                                                    </View>
+                                                )
+                                            }
+                                        </View>
+                                        <View className="mb-4 px-2">
+                                            <Text className="text-white">最新电影</Text>
+                                        </View>
                                     </View>
-                                </>
-                            )}
-                            numColumns={3}
-                            // 保证RefreshControl显示loading start
-                            style={{ flex: 1 }}
-                            contentContainerStyle={{
-                                marginTop: 20,
-                                flexGrow: 1,
-                                minHeight: '100%' // 确保内容容器有最小高度
-                            }}
-                            // 保证RefreshControl显示loading end
-                            columnWrapperStyle={{
-                                flex: 1,
-                                justifyContent: 'flex-start',
-                                gap: 12,
-                                // paddingHorizontal: 16,
-                                marginBottom: 15,
-                            }}
-                            data={movieList}
-                            onEndReached={loadMore}
-                            onEndReachedThreshold={0.5}
-                            keyExtractor={(item) => item.id.toString()}
-                            refreshControl={
-                                <RefreshControl
-                                    refreshing={refreshing}
-                                    onRefresh={pullRefresh}
-                                    title="刷新中 ..."
+                                )}
+                                numColumns={3}
+                                // 保证RefreshControl显示loading start
+                                style={{ flex: 1 }}
+                                contentContainerStyle={{
+                                    marginTop: 20,
+                                    flexGrow: 1,
+                                    minHeight: '100%' // 确保内容容器有最小高度
+                                }}
+                                // 保证RefreshControl显示loading end
+                                columnWrapperStyle={{
+                                    flex: 1,
+                                    justifyContent: 'flex-start',
+                                    gap: 12,
+                                    // paddingHorizontal: 16,
+                                    marginBottom: 15,
+                                }}
+                                data={movieList}
+                                onEndReached={loadMore}
+                                onEndReachedThreshold={0.5}
+                                keyExtractor={(item) => item.id.toString()}
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={refreshing}
+                                        onRefresh={pullRefresh}
+                                        title="刷新中 ..."
 
-                                    // iOS 专用属性
-                                    tintColor="#FFFFFF"        // iOS 旋转指示器颜色
-                                    titleColor="#FFFFFF"       // iOS 标题颜色
+                                        // iOS 专用属性
+                                        tintColor="#FFFFFF"        // iOS 旋转指示器颜色
+                                        titleColor="#FFFFFF"       // iOS 标题颜色
 
-                                    // Android 专用属性  
-                                    colors={['#FF0000']}       // Android 进度圆圈颜色
-                                    progressBackgroundColor="#FFFFFF" // Android 背景色
-                                    progressViewOffset={50}
-                                />
-                            }
-                            renderItem={({ item, index }) => (
-                                <MovieCard {...{ ...item, isVertical: true }} />
-                            )}
-                        />
-                    )
+                                        // Android 专用属性  
+                                        colors={['#FF0000']}       // Android 进度圆圈颜色
+                                        progressBackgroundColor="#FFFFFF" // Android 背景色
+                                        progressViewOffset={50}
+                                    />
+                                }
+                                renderItem={({ item, index }) => (
+                                    <MovieCard {...{ ...item, isVertical: true }} />
+                                )}
+                            />
+                        )
                 }
             </View>
         </View>

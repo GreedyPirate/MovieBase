@@ -44,7 +44,6 @@ export const getMovieGenres = async (): Promise<MovieGenresResponse> => {
     language: 'zh'
   };
   const response = await tmdbRequest.get(`/genre/movie/list`, { params });
-  console.log('获取电影分类成功:', response);
   return response;
 };
 
@@ -94,6 +93,5 @@ export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
     console.error('获取热门电影失败:', error)
     throw error
   }
-  console.log('获取热门电影成功:', data)
   return data?.map(row => row.movie_id) ?? []
 };

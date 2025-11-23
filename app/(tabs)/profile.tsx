@@ -1,8 +1,10 @@
 import { images } from '@/constants/images';
 import { uploadImage } from '@/hooks/useImageBed';
+import { userStore } from '@/stores/userInfoStore';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
     Bell,
     Camera,
@@ -49,11 +51,14 @@ function InfoCard({ value, title, isLast }: InfoCardProps) {
 interface ItemButtonProps {
     title: string,
     icon: () => React.ReactNode,
-    isLast?: boolean
+    isLast?: boolean, 
+    routerPath?: string,
+    onPress?: () => void 
 }
 
-function ItemButton({ title, icon, isLast }: ItemButtonProps) {
+function ItemButton({ title, icon, isLast, routerPath, onPress}: ItemButtonProps) {
     const [isPressed, setIsPressed] = useState(false);
+    const router = useRouter();
     const pressedStyle = () => {
         let style: ViewStyle = {
             backgroundColor: '#rgba(26,24,40,0.1)',
@@ -75,7 +80,10 @@ function ItemButton({ title, icon, isLast }: ItemButtonProps) {
     return (
         <>
             <Pressable
-                onPress={() => { }}
+                onPress={() => { 
+                    onPress && onPress();
+                    routerPath && router.push(routerPath as any) 
+                }}
                 onPressIn={() => setIsPressed(true)}
                 onPressOut={() => setIsPressed(false)}
                 className='flex-row items-center justify-between p-4'
@@ -96,6 +104,9 @@ export default function Profile() {
 
     let iconSize = 20
     const iconColor = '#d1d5dc'
+    const logout = function () {
+        userStore.clear()
+    }
     const funcItemList = [
         {
             title: 'Notifications',
@@ -119,8 +130,11 @@ export default function Profile() {
         },
         {
             title: 'Logout',
-            icon: () => <LogOut color='red' size={iconSize} />
-
+            icon: () => <LogOut color='red' size={iconSize} />,
+            onPress: () => { 
+                logout();
+            },
+            routerPath: '/login'
         }
     ]
 
@@ -236,7 +250,9 @@ export default function Profile() {
                 <View className="bg-dark-120 mt-8 rounded-2xl overflow-hidden">
                     {
                         funcItemList.map((item, index) => (
-                            <ItemButton key={index.toString()} title={item.title} icon={item.icon} isLast={index === funcItemList.length - 1}></ItemButton>
+                            <ItemButton key={index.toString()} title={item.title} 
+                            routerPath={item.routerPath}
+                            icon={item.icon} isLast={index === funcItemList.length - 1}/>
                         ))
                     }
                 </View>

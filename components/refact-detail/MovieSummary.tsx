@@ -1,16 +1,18 @@
 import { fetchSimilarMovies } from '@/hooks/useMovie';
 import { MovieDetail, MovieList, ProductCompany } from '@/interfaces/interfaces';
+import { movieGenresStore } from '@/stores/movieGenresStore';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import ExpandableText from '../ExpandableText';
 import MovieCard from '../MovieCard';
 import RatingStar from '../RatingStar';
 
 interface MovieSummaryProps {
-    detail?: MovieDetail;
+    detail?: MovieDetail,
+    onScrollTop: () => void
 }
-export default function MovieSummary({ detail}: MovieSummaryProps) {
+export default function MovieSummary({ detail, onScrollTop}: MovieSummaryProps) {
     const [loading, setLoading] = useState(true);
     const companies = (companies: ProductCompany[]) => {
         return (
@@ -42,6 +44,14 @@ export default function MovieSummary({ detail}: MovieSummaryProps) {
         };
         loadSimilarMovies();
     }, [])
+    const triggerScrollToTop = (event: NativeSyntheticEvent<NativeScrollEvent>) => { 
+        const offsetY = event.nativeEvent.contentOffset.y;
+        if (offsetY <= 0) {
+            onScrollTop();
+        }
+    };
+
+
     return (
         <View className='flex-1'>
             {
@@ -52,16 +62,17 @@ export default function MovieSummary({ detail}: MovieSummaryProps) {
                     </View>
                 ) :
                 (
-                    
-
                     <View className='px-5 mt-5 gap-y-2'>
-                        <ScrollView>
-                        
-                        
+                        <ScrollView onScroll={triggerScrollToTop}>
                             <Text className='text-white text-xl font-bold'>{detail?.title}</Text>
                             <View className='flex-row gap-x-2'>
                                 <Text className='text-light-200 text-sm'>{detail?.release_date?.split('-')[0]}</Text>
                                 <Text className='text-light-200 text-sm'>{detail?.runtime}m</Text>
+                                {
+                                    detail?.genres?.map((genre, index) => (
+                                        <Text className='text-light-200 text-sm' key={genre.id}>{movieGenresStore.getGenreName(genre.id) + (index===detail?.genres?.length-1 ? '' : ' /')}</Text>
+                                    ))
+                                }
                             </View>
 
 

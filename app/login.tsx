@@ -7,12 +7,17 @@ import { useState } from 'react';
 import { Keyboard, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 export default function Index() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
     const [isPressed, setIsPressed] = useState(false);
-    const handleLogin = () => { 
-        console.log('press login')
+    const handleLogin = async () => {
+        // const user = await selectUser({username, password})
+        // if(!user) {
+        //     throw new Error('用户不存在');
+        // } else {
+        //     userStore.setUserInfo(user);
+        // }
         router.push({
             pathname: '/(tabs)',
         });
@@ -23,7 +28,7 @@ export default function Index() {
                 <SignHeader title='Welcome Back!' subtitle='Sign in to continue'/>
                 
                 <View className='flex-1 px-8 py-8 gap-y-4'>
-                    <FormInput label="Email" value={email} placeholder="Enter your email" emitChange={(text)=>{setEmail(text)}}/>
+                    <FormInput label="Name" value={username} placeholder="Enter your name" emitChange={(text)=>{setUsername(text)}}/>
                     <FormInput label="Password" isPwd value={password} placeholder="Enter your password" emitChange={(text)=>{setPassword(text)}}/>
                     
                     <Pressable className='mt-5' onPress={handleLogin} onPressIn={() => setIsPressed(true)}    
