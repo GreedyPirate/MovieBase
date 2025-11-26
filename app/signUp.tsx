@@ -1,7 +1,8 @@
 import FormInput from '@/components/FormInpu';
 import SignHeader from '@/components/SignHeader';
 import SocialLink from '@/components/SocialLink';
-import { register } from '@/hooks/useUser';
+import { userStore } from '@/stores/userInfoStore';
+import { superbase } from '@/utils/superbaseClient';
 import { Checkbox } from 'expo-checkbox';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -17,12 +18,22 @@ export default function Index() {
     const [isAgree, setIsAgree] = useState(false);
     const router = useRouter();
     const handleSignUp = async () => { 
-        const payload = { email, password, username };
-        const {error}  = await register(payload)
-        if(error) throw error;
-        router.push({
-            pathname: '/(tabs)',
-        });
+        const resp = await superbase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    username: username,
+                },
+                emailRedirectTo: 'moviebase://auth/repassword',
+            }
+        })
+        if(resp.error) throw resp.error;
+        const user = resp.data.user;
+        if (user) {
+            userStore.setUserInfo(user);
+            router.push("/");
+        }
     }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

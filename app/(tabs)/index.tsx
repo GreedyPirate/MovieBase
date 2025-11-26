@@ -42,13 +42,6 @@ export default function Index() {
 
         setLoadingMore(true);
         const nextPage = page + 1;
-
-        // set函数只根据输入计算输出，不修改外部状态、不发起网络请求、不调用 API
-        // setPage((prev) => {
-        //     loadMovieList(prev, false); 
-        //     return prev + 1;
-        // })
-
         try {
             await loadMovieList(nextPage, false);
             setPage(nextPage); // 更新页码
@@ -91,6 +84,7 @@ export default function Index() {
 
                 const validMovies = movies.filter(movie => movie !== null && movie !== undefined);
 
+                console.log('Trending movies:', validMovies.length);
                 setTrendMovies(validMovies);
             } catch (error) {
                 console.error('Failed to fetch trending movies:', error);
@@ -142,57 +136,52 @@ export default function Index() {
                         </View>
                     ) :
                         (
+                            // 轮播图
                             <FlatList
                                 ref={movieListRef}
                                 ListHeaderComponent={() => (
                                     <View>
-                                        <View className='mb-5 flex-1 bg-primary min-h-200'>
-                                            {
-                                                trendMovies.length > 0 && (
-                                                    <View>
-                                                        <Carousel
-                                                            ref={refCarousel}
-                                                            width={screenWidth}
-                                                            height={200}
-                                                            data={trendMovies}
-                                                            onProgressChange={progress}
-                                                            pagingEnabled={true}
-                                                            autoPlay={true}
-                                                            autoPlayInterval={5000}
-                                                            // withAnimation={{
-                                                            //     type: "spring",
-                                                            //     config: {
-                                                            //         damping: 20,
-                                                            //         mass: 0.5,
-                                                            //     }
-                                                            // }}
-                                                            renderItem={({ item, index }) => (
-                                                                <TouchableOpacity
-                                                                    onPress={() => forwardDetail(item.id)}
-                                                                    className="flex-1 items-start justify-center aspect-16/9 rounded-lg overflow-hidden">
-                                                                    <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}` }}
-                                                                        className='size-full'
-                                                                        resizeMode="cover"
-                                                                    />
-                                                                </TouchableOpacity>
-                                                            )}
-                                                        />
-                                                        <Pagination.Basic
-                                                            progress={progress}
-                                                            data={trendMovies}
-                                                            activeDotStyle={{ backgroundColor: "#FFE400", borderRadius: 50 }}
-                                                            dotStyle={{ width:6, height:6, backgroundColor: "#FFF", borderRadius: 50 }}
-                                                            containerStyle={{
-                                                                position: 'absolute',
-                                                                bottom: 10,
-                                                                gap: 5
-                                                            }}
-                                                        />
-                                                    </View>
-                                                )
-                                            }
-                                        </View>
-                                        <View className="mb-4 px-2">
+                                        {
+                                            trendMovies.length > 0 ? (
+                                                <View className='mb-5 h-52 rounded-lg overflow-hidden'>
+                                                    <Carousel
+                                                        ref={refCarousel}
+                                                        width={screenWidth}
+                                                        data={trendMovies}
+                                                        onProgressChange={progress}
+                                                        pagingEnabled={true}
+                                                        autoPlay={true}
+                                                        autoPlayInterval={5000}
+                                                        renderItem={({ item, index }) => (
+                                                            <TouchableOpacity
+                                                                onPress={() => forwardDetail(item.id)}
+                                                                className="flex-1 aspect-16/9">
+                                                                <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}` }}
+                                                                    className='size-full'
+                                                                    resizeMode="cover"
+                                                                />
+                                                            </TouchableOpacity>
+                                                        )}
+                                                    />
+                                                    <Pagination.Basic
+                                                        progress={progress}
+                                                        data={trendMovies}
+                                                        activeDotStyle={{ backgroundColor: "#AB8BFF", borderRadius: 50 }}
+                                                        dotStyle={{ backgroundColor: "#FFF", borderRadius: 50 }}
+                                                        size={8}
+                                                        containerStyle={{
+                                                            position: 'absolute',
+                                                            bottom: 10,
+                                                            gap: 5
+                                                        }}
+                                                    />
+                                                </View>
+                                            ) : (
+                                                <View className='bg-slate-200 mb-5 h-52 rounded-lg '></View>
+                                            )
+                                        }
+
+                                        <View className="my-4 px-2">
                                             <Text className="text-white">最新电影</Text>
                                         </View>
                                     </View>
@@ -216,6 +205,7 @@ export default function Index() {
                                 data={movieList}
                                 onEndReached={loadMore}
                                 onEndReachedThreshold={0.5}
+                                showsVerticalScrollIndicator={false}
                                 keyExtractor={(item) => item.id.toString()}
                                 refreshControl={
                                     <RefreshControl

@@ -1,27 +1,18 @@
-import { Database } from "@/database.types";
+import { User } from "@supabase/supabase-js";
 import { makeAutoObservable } from "mobx";
-type User = Database['public']['Tables']['user']['Row'];
 
 class UserStore {
-    id: number | null = null;
-    username:string = '';
-    email:string = '';
+    user: User | null = null;
     constructor() {
         makeAutoObservable(this);
     }
 
     setUserInfo(user: User) {
-        console.log('set user info', this.id, this.email, this.username);
-        this.id = user.id;
-        this.email = user.email;
-        this.username = user.username;
+        this.user = user;
     }
 
     clear() {
-        console.log('clear user info', this.id, this.email, this.username);
-        this.id = null;
-        this.email = '';
-        this.username = '';
+        this.user = null
     }   
 }
 

@@ -65,8 +65,8 @@ export default function MovieSummary({ detail, onScrollTop}: MovieSummaryProps) 
                     </View>
                 ) :
                 (
-                    <View className='px-5 mt-5'>
-                        <ScrollView className='relative gap-y-2' onScroll={triggerScrollToTop}>
+                    <View className='flex-1 px-5 mt-5'>
+                        <ScrollView className='relative flex-1 gap-y-2' onScroll={triggerScrollToTop}>
                             <View className='absolute right-3 top-3'>
                                 <Pressable className='p-5' onPress={() => setLiked(!liked)}>
                                     {

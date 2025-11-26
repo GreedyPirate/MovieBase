@@ -82,7 +82,7 @@ export const recordMovieView = async (id: number) => {
   return response;
 };
 
-export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
+export const getTrendingMovie = async (total: number=4): Promise<number[]> => {
   const {data, error} = await superbase.from('movie_view')
     .select('movie_id')
     .order('count', { ascending: false })
