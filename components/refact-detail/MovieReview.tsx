@@ -14,7 +14,6 @@ export default function MovieReview({ movieId }: { movieId: number }) {
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const loadReviews = async () => {
-            console.log('review movieId', movieId)
             const reviews = await fetchMovieReviews(movieId, page)
             setReviews(reviews.results)
             setLoading(false)

@@ -1,102 +1,138 @@
-import { icons } from '@/constants/icons';
-import { images } from '@/constants/images';
+import { Feather } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
-import { Image, ImageBackground, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from 'react'; // 确保 React 显式导入
+import { StyleSheet, Text, View } from 'react-native';
+
+const iconSize = 20;
+const INACTIVE_COLOR = '#8A87A6'; 
+const ACTIVE_COLOR = '#FFFFFF';   
+const DARK_BACKGROUND = '#0F0D23'; 
+
+type IconFunc = (color: string) => React.ReactNode;
+
+interface TabListItem {
+    name: string;
+    icon: (color: string) => React.ReactNode;
+    title: string;
+}
 
 interface TabBarIconProps {
     focused: boolean;
-    icon: any;
+    icon: (color: string) => React.ReactNode; 
     title: string;
 }
+// --- TabBarIcon 组件实现 ---
 function TabBarIcon({ focused, icon, title }: TabBarIconProps) {
     if (focused) {
         return (
-            <ImageBackground source={images.highlight}
-                className='w-full min-w-[127px] min-h-16 mt-4 flex flex-row items-center justify-center rounded-full overflow-hidden'>
-                <Image source={icon} tintColor="#151312" className='size-5' />
-                <Text className='ml-2'>{title}</Text>
-            </ImageBackground>
-
-        )
+            <LinearGradient
+                colors={['#D3C4F3', '#A685E6']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.activeContainer}
+            >
+                {icon(ACTIVE_COLOR)}
+                <Text style={styles.activeTitle}>{title}</Text>
+            </LinearGradient>
+        );
     }
     return (
-            <View className="size-full justify-center items-center mt-4 rounded-full">
-                <Image source={icon} tintColor="#A8B5DB" className="size-5" />
-            </View>
-    )
+        <View style={styles.inactiveContainer}>
+            {icon(INACTIVE_COLOR)}
+        </View>
+    );
 }
-export default function RootLayout() {
-    const insets = useSafeAreaInsets();
-    return <Tabs screenOptions={{
-        tabBarShowLabel: false,
-        tabBarItemStyle: {
-            // width: "100%",
-            height: "100%",
-            justifyContent: "center",
-            alignItems: "center",
-            // paddingBottom: 0,
-            // height: 49 + insets.bottom, // 默认 49 + 底部安全区
-        },
-        tabBarStyle: {
-            backgroundColor: "#0F0D23",
-            borderRadius: 50,
-            marginHorizontal: 15,
-            marginBottom: 36,
-            height: 52,
-            position: "absolute",
-            overflow: "hidden",
-            borderWidth: 5,
-            borderColor: "#0F0D23",
-        },
-    }}>
-        <Tabs.Screen name="index" options={{
-            // tabBarStyle: {
-            //     // 关键：让 TabBar 延伸到安全区域外
-            //     paddingBottom: 0,
-            //     height: 49 + insets.bottom, // 默认 49 + 底部安全区
-            // },
-            // title: "首页",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-                <TabBarIcon focused={focused} icon={icons.home} title="首页" />
-            ),
-        }} />
-        {/* <Tabs.Screen name="search" options={{
-            // tabBarStyle: {
-            //     // 关键：让 TabBar 延伸到安全区域外
-            //     paddingBottom: 0,
-            //     height: 49 + insets.bottom, // 默认 49 + 底部安全区
-            // },
-            // title: "搜索",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-                <TabBarIcon focused={focused} icon={icons.search} title="搜索" />
-            ),
-        }} /> */}
-        <Tabs.Screen name="saved" options={{
-            // tabBarStyle: {
-            //     // 关键：让 TabBar 延伸到安全区域外
-            //     paddingBottom: 0,
-            //     height: 49 + insets.bottom, // 默认 49 + 底部安全区
-            // },
-            // title: "收藏",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-                <TabBarIcon focused={focused} icon={icons.save} title="收藏" />
-            ),
-        }} />
-        <Tabs.Screen name="profile" options={{
-            // tabBarStyle: {
-            //     // 关键：让 TabBar 延伸到安全区域外
-            //     paddingBottom: 0,
-            //     height: 49 + insets.bottom, // 默认 49 + 底部安全区
-            // },
-            // title: "我的",
-            headerShown: false,
-            tabBarIcon: ({ focused }) => (
-                <TabBarIcon focused={focused} icon={icons.person} title="我的" />
-            ),
-        }} />
-    </Tabs>
+
+// --- Tab 列表配置 ---
+const tabList = [
+    { name: "index", icon: (color: string) => <Feather name="home" size={iconSize} color={color} />, title: "首页" },
+    { name: "saved", icon: (color: string) => <Feather name="bookmark" size={iconSize} color={color} />, title: "收藏" },
+    { name: "profile", icon: (color: string) => <Feather name="user" size={iconSize} color={color} />, title: "我的" },
+];
+
+// --- Tabs 布局组件 ---
+export default function TabLayout() {
+    const totalTabs = tabList.length;
+
+    return (
+        <Tabs
+            screenListeners={{
+                 tabPress: () => {
+                    Haptics.impactAsync(
+                        Haptics.ImpactFeedbackStyle.Light
+                    )
+                },
+            }}
+            screenOptions={{
+                tabBarShowLabel: false,
+                tabBarStyle: {
+                    backgroundColor: DARK_BACKGROUND,
+                    borderRadius: 50,
+                    marginHorizontal: 15,
+                    marginBottom: 25,
+                    height: 52,
+                    position: "absolute",
+                    // 启用裁剪，让内部的圆角渐变容器在外部圆角处被裁剪
+                    // overflow: "hidden",
+                    paddingTop: 7,
+                    alignItems: "center",
+                    // expo-router 的 Tabs 组件默认带有边框样式 即使未显式设置 border，系统仍会渲染默认边框
+                    borderColor: 'transparent',
+                },
+
+            }}
+        >
+            {tabList.map((item, index) => (
+                <Tabs.Screen
+                    name={item.name}
+                    key={item.name}
+                    listeners={{
+
+                    }}
+                    options={{
+                        headerShown: false,
+                        tabBarIcon: ({ focused }) => (
+                            <TabBarIcon focused={focused} icon={item.icon as IconFunc} title={item.title} />
+                        ),
+                        tabBarBackground() {
+                            return (
+                                <View style={{ flex: 1 }} />
+                            );
+                        },
+                    }}
+                />
+            ))}
+        </Tabs>
+    );
 }
+
+// --- 样式定义 ---
+const styles = StyleSheet.create({
+    // 激活时的容器样式，使用 flex: 1 填充整个 TabBarItem
+    activeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 12,
+        // 高度设置为 100% 以确保填满 TabBarItem 容器
+        width: 120,
+        height: 52,
+        // 核心：设置大圆角，以便在 TabBarItem 容器内呈现药丸形状
+        borderRadius: 50, 
+    },
+    activeTitle: {
+        color: ACTIVE_COLOR,
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 6, // 图标和文字之间的间距
+    },
+    // 未激活时的容器样式，只用于居中图标
+    inactiveContainer: {
+        width: 120,
+        height: 52,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+});

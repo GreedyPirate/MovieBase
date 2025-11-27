@@ -44,7 +44,6 @@ export const getMovieGenres = async (): Promise<MovieGenresResponse> => {
     language: 'zh'
   };
   const response = await tmdbRequest.get(`/genre/movie/list`, { params });
-  console.log('获取电影分类成功:', response);
   return response;
 };
 
@@ -83,7 +82,7 @@ export const recordMovieView = async (id: number) => {
   return response;
 };
 
-export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
+export const getTrendingMovie = async (total: number=4): Promise<number[]> => {
   const {data, error} = await superbase.from('movie_view')
     .select('movie_id')
     .order('count', { ascending: false })
@@ -94,6 +93,11 @@ export const getTrendingMovie = async (total: number=3): Promise<number[]> => {
     console.error('获取热门电影失败:', error)
     throw error
   }
-  console.log('获取热门电影成功:', data)
   return data?.map(row => row.movie_id) ?? []
+};
+
+export const fetchVideoUri = async (id: number): Promise<string | null> => {
+  const response = await tmdbRequest.get(`/movie/${id}/videos`);
+  const video = response.results.find((video: any) => video.type === 'Trailer');
+  return video ? video.key : null;
 };

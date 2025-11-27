@@ -1,10 +1,8 @@
-import { expoImages } from '@/constants/images';
 import { recordMovieView } from '@/hooks/useMovie';
 import { MovieList } from '@/interfaces/interfaces';
 import { movieGenresStore } from '@/stores/movieGenresStore';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { observer } from 'mobx-react-lite';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 interface ResultListProps {
@@ -12,7 +10,7 @@ interface ResultListProps {
     query: string
 }
 
-const ResultList = observer(({ data, query }: ResultListProps) => {
+const ResultList = ({ data, query }: ResultListProps) => {
     // This is Iron man moon，关键字为on，返回This is Ir, on, man mo, on
     const splitByKeyword = (text:string, keyword:string) => {
       const regex = new RegExp(`(${keyword})`, 'gi');
@@ -27,8 +25,8 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
       ));
     };
     const listGenres = (ids: number[]) => {
-        return ids.map((id) => (
-            <Text className="text-slate-300 text-xs">{movieGenresStore.getGenreName(id)}</Text>
+        return ids.map((id, index) => (
+            <Text key={index} className="text-slate-300 text-xs">{movieGenresStore.getGenreName(id)}</Text>
         )) 
     }
     const router = useRouter();
@@ -51,10 +49,10 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handlePress(item.id)} activeOpacity={0.5}>
                         <View className="h-[80] flex-row items-center jsustify-flex-start py-2 border-b-[1px] border-dark-200">
-                            <View className='w-[40] h-[50] rounded-lg'>
-                                <Image source={item.poster_path ? {uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`} : expoImages.blankMoviePic}
-                                    contentFit="cover" />
-                            </View>
+                            <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                                style={{ width: 40, height: 50, borderRadius: 5 }}
+                                contentFit="cover" 
+                            />
                             
                             <View className='flex-column gap-2 justify-between ml-3'>
                                 <View className='flex-row'>
@@ -81,5 +79,5 @@ const ResultList = observer(({ data, query }: ResultListProps) => {
                 )} />
         </View>
     );
-})
+}
 export default ResultList

@@ -1,6 +1,7 @@
 import { recordMovieView } from '@/hooks/useMovie';
 import { MovieCardProps } from '@/interfaces/interfaces';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Text, TouchableOpacity, View } from 'react-native';
 
@@ -21,6 +22,12 @@ export default function MovieCard({ id, poster_path, release_date, vote_average,
                     <Image source={{ uri: `https://image.tmdb.org/t/p/w500${poster_path}` }}
                         style={{ aspectRatio: 2 / 3 }}
                         contentFit="cover" 
+                    />
+                    <LinearGradient
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        colors={['rgba(255,255,255,0.1)', 'rgba(0,0,0,0.8)']}
+                        className="size-full absolute bottom-0 left-0 right-0 h-full"
                     />
                 </View>
                 

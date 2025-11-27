@@ -20,22 +20,22 @@ const createHttpClient = (config: AxiosRequestConfig): AxiosInstance => {
   (config: InternalAxiosRequestConfig) => {
     console.log(' [Axios Request]');
     console.log('	URL:', config.url);
-    console.log('	Method:', config.method?.toUpperCase());
+    // console.log('	Method:', config.method?.toUpperCase());
     
     // 打印请求头（headers）
-    console.log('	Headers:', {
-      ...config.headers,
-    });
+    // console.log('	Headers:', {
+    //   ...config.headers,
+    // });
 
     // 打印 URL 查询参数（query params）
-    if (config.params) {
-      console.log('	Query Params:', config.params);
-    }
+    // if (config.params) {
+    //   console.log('	Query Params:', config.params);
+    // }
 
     // 打印请求体（body / data）
-    if (config.data) {
-      console.log('	Request Body:', config.data);
-    }
+    // if (config.data) {
+    //   console.log('	Request Body:', config.data);
+    // }
 
     // console.log('──────────────────────────────────');
 

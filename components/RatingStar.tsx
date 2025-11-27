@@ -11,8 +11,7 @@ export default function RatingStar({vote_average, vote_count} : RatingStarProps)
         if (!vote_average) {
             return []
         }
-        const oriRating = Math.round(vote_average)
-        const halfRating = oriRating / 2
+        const halfRating = vote_average / 2
         const { integer, decimal } = splitDecimal(halfRating)
         const starIcons = []
         for (let i = 0; i < integer; i++) {
@@ -24,9 +23,9 @@ export default function RatingStar({vote_average, vote_count} : RatingStarProps)
         return (starIcons)
     }
     return (
-            <View className='self-start flex-row item-center gap-x-2 bg-dark-100 rounded-md px-2 py-2'>
+            <View className='self-start flex-row item-center gap-x-2 bg-dark-100 rounded-md px-2 py-2 my-1'>
                 {ratingStart(vote_average ?? 0)}
-                <Text className='text-white text-sm font-bold'>{vote_average?.toFixed(0) ?? 0}/10</Text>
+                <Text className='text-white text-sm font-bold'>{vote_average?.toFixed(1) ?? 0}/10</Text>
                 <Text className='text-light-200 text-sm'>({vote_count} voted)</Text>
             </View>
     );

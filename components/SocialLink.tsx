@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 export interface SocialLinkProps {
-    children: React.ReactNode;
+    children: React.ReactNode,
+    loginCallback?: () => void;
 }
-export default function SocialLink({children}:SocialLinkProps) {
+export default function SocialLink({children, loginCallback}:SocialLinkProps) {
     const [isPressed, setIsPressed] = useState(false);
     return (
         <View className='flex-1'>
             <Pressable className="h-12"
+                onPress={loginCallback}
                 onPressIn={()=>{setIsPressed(true)}}
                 onPressOut={()=>{setIsPressed(false)}}
                 style={{

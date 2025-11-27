@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "com.yolo.movie"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.MovieBase"
+      "package": "com.yolo.movie",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -62,11 +67,31 @@
           "configureAndroidBackup": true,
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
-      ]
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      // [
+      //   "@react-native-google-signin/google-signin",
+      //   {
+      //     // google cloud dev console
+      //     "iosUrlScheme": "com.googleusercontent.apps.419135348270-fq77p14narofvbhvegmn3ct6ulodjsj7"
+      //   }
+      // ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "32695dfd-01fd-4c26-a89c-fad321916219"
+      }
     }
   }
 }

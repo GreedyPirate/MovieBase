@@ -1,13 +1,13 @@
 import SearchHistory from '@/components/SearchHistory';
 import SearchResult from '@/components/SearchResult';
-import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
 import { searchMovie } from '@/hooks/useMovie';
 import { MovieList } from '@/interfaces/interfaces';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Search } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, Text, TextInput, View } from 'react-native';
+import { Image, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function SearchPage() {
@@ -43,9 +43,16 @@ export default function SearchPage() {
                             <Text className="text-white text-base ml-1">返回</Text>
                         </Pressable>
                         {/* KeyboardAvoidingView:  behavior="position" keyboardVerticalOffset={30} */}
-                        <View className='flex-row flex-1 items-center bg-dark-200 rounded-2xl ml-3 px-4 py-2'>
-                            <Image source={icons.search} className='w-5 h-5 mt-1' resizeMode='contain' tintColor="#AB8BFF"></Image>
-                            <TextInput className='flex-1 ml-2 pb-1 text-white text-base'
+                        <View className='flex-row flex-1 items-center justify-center bg-dark-200 rounded-2xl ml-3 px-4 py-3'>
+                            <Search size={20} color="#AB8BFF" />
+                            <TextInput className='flex-1 ml-2 text-white text-base' 
+                                style={{
+                                    minHeight: 0,           // 重置 Android 最小高度
+                                    paddingTop: 0,     // 移除内部 padding
+                                    includeFontPadding: false, // Android 去掉字体额外 padding
+                                    textAlignVertical: 'center',  // Android 文字垂直居中（默认靠上）
+                                    paddingBottom: Platform.OS === 'ios' ? 4 : 0,
+                                }}
                                 autoFocus={true}
                                 value={value}
                                 ref={inputDom}
